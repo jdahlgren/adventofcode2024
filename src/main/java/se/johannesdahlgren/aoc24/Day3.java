@@ -40,25 +40,30 @@ public class Day3 {
     return results;
   }
 
-  public static List<Multiplication> findAndCalculateMultiplicationsUntilDont(String input) {
+  public static List<Multiplication> findAndCalculateMultiplicationsWithReset(String input) {
     List<Multiplication> results = new ArrayList<>();
 
     // Pattern to find control sequences and multiplications
-    Pattern controlPattern = Pattern.compile("don't\\(\\)|mul\\((\\d{1,3}),(\\d{1,3})\\)");
+    Pattern controlPattern = Pattern.compile("do\\(\\)|don't\\(\\)|mul\\((\\d{1,3}),(\\d{1,3})\\)");
     Matcher matcher = controlPattern.matcher(input);
 
     boolean shouldContinue = true;
 
-    while (matcher.find() && shouldContinue) {
+    while (matcher.find()) {
       String match = matcher.group();
+
+      if (match.equals("do()")) {
+        shouldContinue = true;
+        continue;
+      }
 
       if (match.equals("don't()")) {
         shouldContinue = false;
         continue;
       }
 
-      // Process multiplication
-      if (match.startsWith("mul")) {
+      // Process multiplication if we should continue
+      if (shouldContinue && match.startsWith("mul")) {
         Pattern mulPattern = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
         Matcher mulMatcher = mulPattern.matcher(match);
         if (mulMatcher.find()) {
@@ -75,9 +80,9 @@ public class Day3 {
   public static void main(String[] args) {
     try {
       // Read input from file
-      String input = Files.readString(Path.of("src/main/resources/day3.example"));
+      String input = Files.readString(Path.of("src/main/resources/day3_2.example"));
 
-      List<Multiplication> multiplications = findAndCalculateMultiplicationsUntilDont(input);
+      List<Multiplication> multiplications = findAndCalculateMultiplicationsWithReset(input);
 
       // Print individual results
       System.out.println("Individual multiplications:");
