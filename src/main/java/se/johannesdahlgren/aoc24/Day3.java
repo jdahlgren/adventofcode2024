@@ -82,18 +82,31 @@ public class Day3 {
       // Read input from file
       String input = Files.readString(Path.of("src/main/resources/day3"));
 
-      List<Multiplication> multiplications = findAndCalculateMultiplicationsWithReset(input);
+      System.out.println("=== PART 1 ===");
+      List<Multiplication> multiplicationsPartOne = findAndCalculateMultiplications(input);
 
-      // Print individual results
-      System.out.println("Individual multiplications:");
-      multiplications.forEach(System.out::println);
+      // Print part 1 results
+      System.out.println("All multiplications found:");
+      multiplicationsPartOne.forEach(System.out::println);
 
-      // Calculate and print sum
-      int totalSum = multiplications.stream()
+      int totalSumPartOne = multiplicationsPartOne.stream()
           .mapToInt(m -> m.result)
           .sum();
 
-      System.out.println("\nSum of all multiplication results: " + totalSum);
+      System.out.println("\nSum of all multiplication results: " + totalSumPartOne);
+
+      System.out.println("\n=== PART 2 ===");
+      List<Multiplication> multiplicationsPartTwo = findAndCalculateMultiplicationsWithReset(input);
+
+      // Print part 2 results
+      System.out.println("Multiplications (between do() and don't()):");
+      multiplicationsPartTwo.forEach(System.out::println);
+
+      int totalSumPartTwo = multiplicationsPartTwo.stream()
+          .mapToInt(m -> m.result)
+          .sum();
+
+      System.out.println("\nSum of valid multiplication results: " + totalSumPartTwo);
 
     } catch (IOException e) {
       System.err.println("Error reading file: " + e.getMessage());
