@@ -77,36 +77,33 @@ public class Day3 {
     return results;
   }
 
+  private static void printResults(String partName, List<Multiplication> multiplications) {
+    System.out.println("\n=== " + partName + " ===");
+    System.out.println(partName.equals("PART 1") ?
+        "All multiplications found:" :
+        "Multiplications (between do() and don't()):");
+
+    multiplications.forEach(System.out::println);
+
+    int totalSum = multiplications.stream()
+        .mapToInt(m -> m.result)
+        .sum();
+
+    System.out.println("\nSum of multiplication results: " + totalSum);
+  }
+
   public static void main(String[] args) {
     try {
       // Read input from file
       String input = Files.readString(Path.of("src/main/resources/day3"));
 
-      System.out.println("=== PART 1 ===");
+      // Part 1
       List<Multiplication> multiplicationsPartOne = findAndCalculateMultiplications(input);
+      printResults("PART 1", multiplicationsPartOne);
 
-      // Print part 1 results
-      System.out.println("All multiplications found:");
-      multiplicationsPartOne.forEach(System.out::println);
-
-      int totalSumPartOne = multiplicationsPartOne.stream()
-          .mapToInt(m -> m.result)
-          .sum();
-
-      System.out.println("\nSum of all multiplication results: " + totalSumPartOne);
-
-      System.out.println("\n=== PART 2 ===");
+      // Part 2
       List<Multiplication> multiplicationsPartTwo = findAndCalculateMultiplicationsWithReset(input);
-
-      // Print part 2 results
-      System.out.println("Multiplications (between do() and don't()):");
-      multiplicationsPartTwo.forEach(System.out::println);
-
-      int totalSumPartTwo = multiplicationsPartTwo.stream()
-          .mapToInt(m -> m.result)
-          .sum();
-
-      System.out.println("\nSum of valid multiplication results: " + totalSumPartTwo);
+      printResults("PART 2", multiplicationsPartTwo);
 
     } catch (IOException e) {
       System.err.println("Error reading file: " + e.getMessage());
