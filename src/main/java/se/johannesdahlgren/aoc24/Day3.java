@@ -40,12 +40,49 @@ public class Day3 {
     return results;
   }
 
+  public static List<Multiplication> findAndCalculateMultiplicationsWithinBounds(String input) {
+    List<Multiplication> results = new ArrayList<>();
+
+    // Pattern to find control sequences and multiplications
+    Pattern controlPattern = Pattern.compile("do\\(\\)|don't\\(\\)|mul\\((\\d{1,3}),(\\d{1,3})\\)");
+    Matcher matcher = controlPattern.matcher(input);
+
+    boolean isActive = false;
+
+    while (matcher.find()) {
+      String match = matcher.group();
+
+      if (match.equals("do()")) {
+        isActive = true;
+        continue;
+      }
+
+      if (match.equals("don't()")) {
+        isActive = false;
+        continue;
+      }
+
+      if (isActive && match.startsWith("mul")) {
+        // Extract numbers from multiplication
+        Pattern mulPattern = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
+        Matcher mulMatcher = mulPattern.matcher(match);
+        if (mulMatcher.find()) {
+          int x = Integer.parseInt(mulMatcher.group(1));
+          int y = Integer.parseInt(mulMatcher.group(2));
+          results.add(new Multiplication(x, y));
+        }
+      }
+    }
+
+    return results;
+  }
+
   public static void main(String[] args) {
     try {
       // Read input from file
       String input = Files.readString(Path.of("src/main/resources/day3.example"));
 
-      List<Multiplication> multiplications = findAndCalculateMultiplications(input);
+      List<Multiplication> multiplications = findAndCalculateMultiplicationsWithinBounds(input);
 
       // Print individual results
       System.out.println("Individual multiplications:");
