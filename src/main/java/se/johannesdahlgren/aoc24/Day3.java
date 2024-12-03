@@ -9,6 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Day3 {
+
+  private static final Pattern MULTIPLICATION_PATTERN = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
+
   public static class Multiplication {
     int x;
     int y;
@@ -26,15 +29,25 @@ public class Day3 {
     }
   }
 
+  private static Multiplication processMultiplication(String matchText) {
+    Matcher mulMatcher = MULTIPLICATION_PATTERN.matcher(matchText);
+    if (mulMatcher.find()) {
+      int x = Integer.parseInt(mulMatcher.group(1));
+      int y = Integer.parseInt(mulMatcher.group(2));
+      return new Multiplication(x, y);
+    }
+    return null;
+  }
+
   public static List<Multiplication> findAndCalculateMultiplications(String input) {
     List<Multiplication> results = new ArrayList<>();
-    Pattern pattern = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
-    Matcher matcher = pattern.matcher(input);
+    Matcher matcher = MULTIPLICATION_PATTERN.matcher(input);
 
     while (matcher.find()) {
-      int x = Integer.parseInt(matcher.group(1));
-      int y = Integer.parseInt(matcher.group(2));
-      results.add(new Multiplication(x, y));
+      Multiplication mult = processMultiplication(matcher.group());
+      if (mult != null) {
+        results.add(mult);
+      }
     }
 
     return results;
@@ -43,7 +56,6 @@ public class Day3 {
   public static List<Multiplication> findAndCalculateMultiplicationsWithReset(String input) {
     List<Multiplication> results = new ArrayList<>();
 
-    // Pattern to find control sequences and multiplications
     Pattern controlPattern = Pattern.compile("do\\(\\)|don't\\(\\)|mul\\((\\d{1,3}),(\\d{1,3})\\)");
     Matcher matcher = controlPattern.matcher(input);
 
@@ -52,24 +64,16 @@ public class Day3 {
     while (matcher.find()) {
       String match = matcher.group();
 
-      if (match.equals("do()")) {
-        shouldContinue = true;
-        continue;
-      }
-
-      if (match.equals("don't()")) {
-        shouldContinue = false;
-        continue;
-      }
-
-      // Process multiplication if we should continue
-      if (shouldContinue && match.startsWith("mul")) {
-        Pattern mulPattern = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
-        Matcher mulMatcher = mulPattern.matcher(match);
-        if (mulMatcher.find()) {
-          int x = Integer.parseInt(mulMatcher.group(1));
-          int y = Integer.parseInt(mulMatcher.group(2));
-          results.add(new Multiplication(x, y));
+      switch (match) {
+        case "do()" -> shouldContinue = true;
+        case "don't()" -> shouldContinue = false;
+        default -> {
+          if (shouldContinue && match.startsWith("mul")) {
+            Multiplication mult = processMultiplication(match);
+            if (mult != null) {
+              results.add(mult);
+            }
+          }
         }
       }
     }
