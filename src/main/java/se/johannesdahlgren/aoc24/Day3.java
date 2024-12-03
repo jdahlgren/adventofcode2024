@@ -80,7 +80,7 @@ public class Day3 {
   public static void main(String[] args) {
     try {
       // Read input from file
-      String input = Files.readString(Path.of("src/main/resources/day3_2.example"));
+      String input = Files.readString(Path.of("src/main/resources/day3"));
 
       List<Multiplication> multiplications = findAndCalculateMultiplicationsWithReset(input);
 
