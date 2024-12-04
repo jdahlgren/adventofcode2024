@@ -55,6 +55,40 @@ public class Day4 {
     return totalFound;
   }
 
+  public int findMASCross() {
+    int count = 0;
+    String target = "MAS";
+
+    // For each potential center A
+    for (int row = 1; row < matrix.length - 1; row++) {
+      for (int col = 1; col < matrix[0].length - 1; col++) {
+        if (matrix[row][col] == 'A') {
+          // Check for MAS in diagonal patterns that form an X
+          if ((checkMAS(row - 1, col - 1, -1, -1, target) &&
+              checkMAS(row + 1, col + 1, 1, 1, target)) ||
+              (checkMAS(row - 1, col + 1, -1, 1, target) &&
+                  checkMAS(row + 1, col - 1, 1, -1, target))) {
+            count++;
+          }
+        }
+      }
+    }
+    return count;
+  }
+
+  private boolean checkMAS(int startRow, int startCol, int rowDir, int colDir, String target) {
+    if (!isInBounds(startRow, startCol, rowDir, colDir, target.length())) {
+      return false;
+    }
+
+    for (int i = 0; i < target.length(); i++) {
+      if (matrix[startRow + i * rowDir][startCol + i * colDir] != target.charAt(i)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private boolean searchDirection(int row, int col, int rowDir, int colDir, String target) {
     if (row < 0 || row >= matrix.length || col < 0 || col >= matrix[0].length) {
       return false;
@@ -85,7 +119,7 @@ public class Day4 {
 
   public static void main(String[] args) {
     Day4 solver = new Day4();
-    int count = solver.findXMAS();
-    System.out.println("Found " + count + " occurrence(s) of XMAS");
+    System.out.println("XMAS occurrences: " + solver.findXMAS());
+    System.out.println("MAS X-pattern occurrences: " + solver.findMASCross());
   }
 }
