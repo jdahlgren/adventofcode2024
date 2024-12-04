@@ -2,7 +2,6 @@ package se.johannesdahlgren.aoc24;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -54,7 +53,7 @@ public record Day4(char[][] matrix) {
     int count = 0;
     for (int row = 0; row < matrix.length; row++) {
       for (int col = 0; col < matrix[0].length; col++) {
-        if (isInBounds(row, col) && searchMASCross(row, col)) {
+        if (searchMASCross(row, col)) {
           count++;
         }
       }
