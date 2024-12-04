@@ -36,11 +36,11 @@ public class Day4 {
   }
 
   public int findXMAS() {
-    return findPattern((row, col) -> searchXMAS(row, col));
+    return findPattern(this::searchXMAS);
   }
 
   public int findMASCross() {
-    return findPattern((row, col) -> searchMASCross(row, col));
+    return findPattern(this::searchMASCross);
   }
 
   private int findPattern(BiPredicate<Integer, Integer> searchFunction) {
