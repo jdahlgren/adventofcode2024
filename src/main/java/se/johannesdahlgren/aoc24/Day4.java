@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.BiPredicate;
-import java.util.stream.IntStream;
 
 public record Day4(char[][] matrix) {
 
@@ -40,12 +39,15 @@ public record Day4(char[][] matrix) {
   }
 
   private int findPattern(BiPredicate<Integer, Integer> searchFunction) {
-    return (int) IntStream.range(1, matrix.length - 1)
-        .mapToObj(row -> IntStream.range(1, matrix[0].length - 1)
-            .filter(col -> searchFunction.test(row, col))
-            .count())
-        .mapToLong(Long::longValue)
-        .sum();
+    int count = 0;
+    for (int row = 0; row < matrix.length; row++) {
+      for (int col = 0; col < matrix[0].length; col++) {
+        if (searchFunction.test(row, col)) {
+          count++;
+        }
+      }
+    }
+    return count;
   }
 
   private boolean searchXMAS(int row, int col) {
@@ -88,8 +90,12 @@ public record Day4(char[][] matrix) {
       return false;
     }
 
-    return IntStream.range(0, target.length())
-        .allMatch(i -> matrix[row + i * rowDir][col + i * colDir] == target.charAt(i));
+    for (int i = 0; i < target.length(); i++) {
+      if (matrix[row + i * rowDir][col + i * colDir] != target.charAt(i)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private boolean isInBounds(int row, int col, int rowDir, int colDir, int length) {
