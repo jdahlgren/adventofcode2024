@@ -2,32 +2,28 @@ package se.johannesdahlgren.aoc24;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.stream.IntStream;
 
-public class Day4 {
-  private final char[][] matrix;
+public record Day4(char[][] matrix) {
 
   public Day4() {
-    this.matrix = loadMatrix();
+    this(loadMatrix());
   }
 
-  private char[][] loadMatrix() {
+  private static char[][] loadMatrix() {
     try {
-      Path path = Paths.get("src/main/resources/day4");
-      List<String> lines = Files.readAllLines(path);
+      List<String> lines = Files.readAllLines(Paths.get("src/main/resources/day4"));
 
       if (lines.isEmpty()) {
         throw new IOException("Input file is empty");
       }
 
-      char[][] matrix = new char[lines.size()][lines.getFirst().length()];
-      for (int i = 0; i < lines.size(); i++) {
-        matrix[i] = lines.get(i).toCharArray();
-      }
-      return matrix;
+      return lines.stream()
+          .map(String::toCharArray)
+          .toArray(char[][]::new);
 
     } catch (IOException e) {
       System.err.println("Error reading input file: " + e.getMessage());
@@ -44,37 +40,42 @@ public class Day4 {
   }
 
   private int findPattern(BiPredicate<Integer, Integer> searchFunction) {
-    int count = 0;
-    for (int row = 1; row < matrix.length - 1; row++) {
-      for (int col = 1; col < matrix[0].length - 1; col++) {
-        if (searchFunction.test(row, col)) {
-          count++;
-        }
-      }
-    }
-    return count;
+    return (int) IntStream.range(1, matrix.length - 1)
+        .mapToObj(row -> IntStream.range(1, matrix[0].length - 1)
+            .filter(col -> searchFunction.test(row, col))
+            .count())
+        .mapToLong(Long::longValue)
+        .sum();
   }
 
   private boolean searchXMAS(int row, int col) {
     if (matrix[row][col] != 'X') return false;
 
-    int[] rowDir = {-1, -1, -1, 0, 0, 1, 1, 1};
-    int[] colDir = {-1, 0, 1, -1, 1, -1, 0, 1};
-    String target = "XMAS";
+    record Direction(int row, int col) {}
 
-    for (int dir = 0; dir < 8; dir++) {
-      if (searchDirection(row, col, rowDir[dir], colDir[dir], target)) {
-        return true;
-      }
-    }
-    return false;
+    Direction[] directions = {
+        new Direction(-1, -1), new Direction(-1, 0), new Direction(-1, 1),
+        new Direction(0, -1),  new Direction(0, 1),
+        new Direction(1, -1),  new Direction(1, 0),  new Direction(1, 1)
+    };
+
+    return java.util.Arrays.stream(directions)
+        .anyMatch(dir -> searchDirection(row, col, dir.row(), dir.col(), "XMAS"));
   }
 
   private boolean searchMASCross(int row, int col) {
     if (matrix[row][col] != 'A') return false;
 
-    return (checkDiagonal(row, col, -1, -1) && checkDiagonal(row, col, -1, 1)) ||
-        (checkDiagonal(row, col, 1, -1) && checkDiagonal(row, col, 1, 1));
+    record DiagonalPair(int row1, int col1, int row2, int col2) {}
+
+    var diagonalPairs = List.of(
+        new DiagonalPair(-1, -1, -1, 1),
+        new DiagonalPair(1, -1, 1, 1)
+    );
+
+    return diagonalPairs.stream()
+        .anyMatch(pair -> checkDiagonal(row, col, pair.row1(), pair.col1()) &&
+            checkDiagonal(row, col, pair.row2(), pair.col2()));
   }
 
   private boolean checkDiagonal(int row, int col, int rowDir, int colDir) {
@@ -87,12 +88,8 @@ public class Day4 {
       return false;
     }
 
-    for (int i = 0; i < target.length(); i++) {
-      if (matrix[row + i * rowDir][col + i * colDir] != target.charAt(i)) {
-        return false;
-      }
-    }
-    return true;
+    return IntStream.range(0, target.length())
+        .allMatch(i -> matrix[row + i * rowDir][col + i * colDir] == target.charAt(i));
   }
 
   private boolean isInBounds(int row, int col, int rowDir, int colDir, int length) {
@@ -104,7 +101,7 @@ public class Day4 {
   }
 
   public static void main(String[] args) {
-    Day4 solver = new Day4();
+    var solver = new Day4();
     System.out.println("XMAS occurrences: " + solver.findXMAS());
     System.out.println("MAS X-pattern occurrences: " + solver.findMASCross());
   }
