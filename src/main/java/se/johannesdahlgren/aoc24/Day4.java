@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Day4 {
   private char[][] matrix;
-  private List<String> foundLocations = new ArrayList<>();
+  private int totalFound = 0;
 
   public Day4() {
     loadMatrix();
@@ -30,7 +29,7 @@ public class Day4 {
     }
   }
 
-  public List<String> findXMAS() {
+  public int findXMAS() {
     // Search in all 8 directions
     int[] rowDir = {-1, -1, -1, 0, 0, 1, 1, 1};
     int[] colDir = {-1, 0, 1, -1, 1, -1, 0, 1};
@@ -42,16 +41,14 @@ public class Day4 {
           // Check all 8 directions from this X
           for (int dir = 0; dir < 8; dir++) {
             if (searchDirection(row, col, rowDir[dir], colDir[dir], target)) {
-              String location = String.format("XMAS found at (%d,%d) in direction (%d,%d)",
-                  row, col, rowDir[dir], colDir[dir]);
-              foundLocations.add(location);
+              totalFound++;
             }
           }
         }
       }
     }
 
-    return foundLocations;
+    return totalFound;
   }
 
   private boolean searchDirection(int row, int col, int rowDir, int colDir, String target) {
@@ -84,13 +81,7 @@ public class Day4 {
 
   public static void main(String[] args) {
     Day4 solver = new Day4();
-    List<String> results = solver.findXMAS();
-
-    if (results.isEmpty()) {
-      System.out.println("No occurrences of XMAS found");
-    } else {
-      System.out.println("Found " + results.size() + " occurrence(s) of XMAS:");
-      results.forEach(System.out::println);
-    }
+    int count = solver.findXMAS();
+    System.out.println("Found " + count + " occurrence(s) of XMAS");
   }
 }
