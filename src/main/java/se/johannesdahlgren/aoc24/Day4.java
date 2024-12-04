@@ -19,7 +19,11 @@ public class Day4 {
       Path path = Paths.get("src/main/resources/day4");
       List<String> lines = Files.readAllLines(path);
 
-      matrix = new char[lines.size()][lines.get(0).length()];
+      if (lines.isEmpty()) {
+        throw new IOException("Input file is empty");
+      }
+
+      matrix = new char[lines.size()][lines.getFirst().length()];
       for (int i = 0; i < lines.size(); i++) {
         matrix[i] = lines.get(i).toCharArray();
       }
