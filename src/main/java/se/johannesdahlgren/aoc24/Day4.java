@@ -2,9 +2,11 @@ package se.johannesdahlgren.aoc24;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.stream.IntStream;
 
 public record Day4(char[][] matrix) {
 
@@ -42,7 +44,7 @@ public record Day4(char[][] matrix) {
     int count = 0;
     for (int row = 0; row < matrix.length; row++) {
       for (int col = 0; col < matrix[0].length; col++) {
-        if (searchFunction.test(row, col)) {
+        if (isInBounds(row, col) && searchFunction.test(row, col)) {
           count++;
         }
       }
@@ -66,7 +68,7 @@ public record Day4(char[][] matrix) {
   }
 
   private boolean searchMASCross(int row, int col) {
-    if (matrix[row][col] != 'A') return false;
+    if (!isInBounds(row, col) || matrix[row][col] != 'A') return false;
 
     record DiagonalPair(int row1, int col1, int row2, int col2) {}
 
@@ -81,8 +83,15 @@ public record Day4(char[][] matrix) {
   }
 
   private boolean checkDiagonal(int row, int col, int rowDir, int colDir) {
-    return (matrix[row - rowDir][col - colDir] == 'M' && matrix[row + rowDir][col + colDir] == 'S') ||
-        (matrix[row - rowDir][col - colDir] == 'S' && matrix[row + rowDir][col + colDir] == 'M');
+    int mRow = row - rowDir;
+    int mCol = col - colDir;
+    int sRow = row + rowDir;
+    int sCol = col + colDir;
+
+    if (!isInBounds(mRow, mCol) || !isInBounds(sRow, sCol)) return false;
+
+    return (matrix[mRow][mCol] == 'M' && matrix[sRow][sCol] == 'S') ||
+        (matrix[mRow][mCol] == 'S' && matrix[sRow][sCol] == 'M');
   }
 
   private boolean searchDirection(int row, int col, int rowDir, int colDir, String target) {
@@ -98,12 +107,16 @@ public record Day4(char[][] matrix) {
     return true;
   }
 
+  private boolean isInBounds(int row, int col) {
+    return row >= 0 && row < matrix.length &&
+        col >= 0 && col < matrix[0].length;
+  }
+
   private boolean isInBounds(int row, int col, int rowDir, int colDir, int length) {
     int endRow = row + (length - 1) * rowDir;
     int endCol = col + (length - 1) * colDir;
 
-    return endRow >= 0 && endRow < matrix.length &&
-        endCol >= 0 && endCol < matrix[0].length;
+    return isInBounds(row, col) && isInBounds(endRow, endCol);
   }
 
   public static void main(String[] args) {
