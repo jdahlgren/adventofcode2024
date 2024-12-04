@@ -62,15 +62,24 @@ public class Day4 {
     for (int row = 1; row < matrix.length - 1; row++) {
       for (int col = 1; col < matrix[0].length - 1; col++) {
         if (matrix[row][col] == 'A') {
-          // Check for MAS in diagonal patterns that form an X
-          if ((matrix[row - 1][col - 1] == 'M' && matrix[row + 1][col + 1] == 'S' &&  // first diagonal
-              matrix[row - 1][col + 1] == 'M' && matrix[row + 1][col - 1] == 'S')) { // second diagonal
+          // Check for MAS and SAM in diagonal patterns that form an X
+          if ((checkDiagonal(row, col, -1, -1) && checkDiagonal(row, col, -1, 1)) || // upper MAS or SAM patterns
+              (checkDiagonal(row, col, 1, -1) && checkDiagonal(row, col, 1, 1))) {   // lower MAS or SAM patterns
             count++;
           }
         }
       }
     }
     return count;
+  }
+
+  private boolean checkDiagonal(int row, int col, int rowDir, int colDir) {
+    // Check for MAS
+    boolean isMAS = (matrix[row - rowDir][col - colDir] == 'M' && matrix[row + rowDir][col + colDir] == 'S');
+    // Check for SAM (backwards MAS)
+    boolean isSAM = (matrix[row - rowDir][col - colDir] == 'S' && matrix[row + rowDir][col + colDir] == 'M');
+
+    return isMAS || isSAM;
   }
 
   private boolean searchDirection(int row, int col, int rowDir, int colDir, String target) {
