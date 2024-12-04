@@ -2,9 +2,9 @@ package se.johannesdahlgren.aoc24;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.function.BiPredicate;
 
 public record Day4(char[][] matrix) {
 
@@ -51,14 +51,10 @@ public record Day4(char[][] matrix) {
   }
 
   public int findMASCross() {
-    return findPattern(this::searchMASCross);
-  }
-
-  private int findPattern(BiPredicate<Integer, Integer> searchFunction) {
     int count = 0;
     for (int row = 0; row < matrix.length; row++) {
       for (int col = 0; col < matrix[0].length; col++) {
-        if (isInBounds(row, col) && searchFunction.test(row, col)) {
+        if (isInBounds(row, col) && searchMASCross(row, col)) {
           count++;
         }
       }
