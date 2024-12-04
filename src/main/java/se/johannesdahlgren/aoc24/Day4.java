@@ -59,16 +59,21 @@ public class Day4 {
     int count = 0;
     String target = "MAS";
 
-    // For each potential center A
-    for (int row = 1; row < matrix.length - 1; row++) {
-      for (int col = 1; col < matrix[0].length - 1; col++) {
-        if (matrix[row][col] == 'A') {
-          // Check for MAS in diagonal patterns that form an X
-          if ((checkMAS(row - 1, col - 1, -1, -1, target) &&
-              checkMAS(row + 1, col + 1, 1, 1, target)) ||
-              (checkMAS(row - 1, col + 1, -1, 1, target) &&
-                  checkMAS(row + 1, col - 1, 1, -1, target))) {
-            count++;
+    // For each potential starting M position
+    for (int row = 0; row < matrix.length - 2; row++) {
+      for (int col = 0; col < matrix[0].length - 2; col++) {
+        if (matrix[row][col] == 'M') {
+          // Check for X pattern starting from this M
+          // Down-right diagonal
+          if (matrix[row + 1][col + 1] == 'A' && matrix[row + 2][col + 2] == 'S') {
+            // Check for matching MAS in up-right direction
+            if (col >= 2 && row <= matrix.length - 3) {
+              if (matrix[row][col + 2] == 'M' &&
+                  matrix[row + 1][col + 1] == 'A' && // shared A
+                  matrix[row + 2][col] == 'S') {
+                count++;
+              }
+            }
           }
         }
       }
