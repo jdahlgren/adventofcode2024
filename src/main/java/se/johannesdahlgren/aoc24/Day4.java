@@ -57,41 +57,20 @@ public class Day4 {
 
   public int findMASCross() {
     int count = 0;
-    String target = "MAS";
 
-    // For each potential starting M position
-    for (int row = 0; row < matrix.length - 2; row++) {
-      for (int col = 0; col < matrix[0].length - 2; col++) {
-        if (matrix[row][col] == 'M') {
-          // Check for X pattern starting from this M
-          // Down-right diagonal
-          if (matrix[row + 1][col + 1] == 'A' && matrix[row + 2][col + 2] == 'S') {
-            // Check for matching MAS in up-right direction
-            if (col >= 2 && row <= matrix.length - 3) {
-              if (matrix[row][col + 2] == 'M' &&
-                  matrix[row + 1][col + 1] == 'A' && // shared A
-                  matrix[row + 2][col] == 'S') {
-                count++;
-              }
-            }
+    // For each potential center A position
+    for (int row = 1; row < matrix.length - 1; row++) {
+      for (int col = 1; col < matrix[0].length - 1; col++) {
+        if (matrix[row][col] == 'A') {
+          // Check for MAS in diagonal patterns that form an X
+          if ((matrix[row - 1][col - 1] == 'M' && matrix[row + 1][col + 1] == 'S' &&  // first diagonal
+              matrix[row - 1][col + 1] == 'M' && matrix[row + 1][col - 1] == 'S')) { // second diagonal
+            count++;
           }
         }
       }
     }
     return count;
-  }
-
-  private boolean checkMAS(int startRow, int startCol, int rowDir, int colDir, String target) {
-    if (!isInBounds(startRow, startCol, rowDir, colDir, target.length())) {
-      return false;
-    }
-
-    for (int i = 0; i < target.length(); i++) {
-      if (matrix[startRow + i * rowDir][startCol + i * colDir] != target.charAt(i)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private boolean searchDirection(int row, int col, int rowDir, int colDir, String target) {
