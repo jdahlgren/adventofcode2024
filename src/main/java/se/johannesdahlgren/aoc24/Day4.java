@@ -2,11 +2,9 @@ package se.johannesdahlgren.aoc24;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.BiPredicate;
-import java.util.stream.IntStream;
 
 public record Day4(char[][] matrix) {
 
@@ -33,7 +31,23 @@ public record Day4(char[][] matrix) {
   }
 
   public int findXMAS() {
-    return findPattern(this::searchXMAS);
+    int count = 0;
+    String target = "XMAS";
+    int[] rowDir = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int[] colDir = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+    for (int row = 0; row < matrix.length; row++) {
+      for (int col = 0; col < matrix[0].length; col++) {
+        if (matrix[row][col] == 'X') {
+          for (int dir = 0; dir < 8; dir++) {
+            if (searchDirection(row, col, rowDir[dir], colDir[dir], target)) {
+              count++;
+            }
+          }
+        }
+      }
+    }
+    return count;
   }
 
   public int findMASCross() {
@@ -50,21 +64,6 @@ public record Day4(char[][] matrix) {
       }
     }
     return count;
-  }
-
-  private boolean searchXMAS(int row, int col) {
-    if (matrix[row][col] != 'X') return false;
-
-    record Direction(int row, int col) {}
-
-    Direction[] directions = {
-        new Direction(-1, -1), new Direction(-1, 0), new Direction(-1, 1),
-        new Direction(0, -1),  new Direction(0, 1),
-        new Direction(1, -1),  new Direction(1, 0),  new Direction(1, 1)
-    };
-
-    return java.util.Arrays.stream(directions)
-        .anyMatch(dir -> searchDirection(row, col, dir.row(), dir.col(), "XMAS"));
   }
 
   private boolean searchMASCross(int row, int col) {
