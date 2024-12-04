@@ -69,16 +69,8 @@ public record Day4(char[][] matrix) {
   private boolean searchMASCross(int row, int col) {
     if (!isInBounds(row, col) || matrix[row][col] != 'A') return false;
 
-    record DiagonalPair(int row1, int col1, int row2, int col2) {}
-
-    var diagonalPairs = List.of(
-        new DiagonalPair(-1, -1, -1, 1),
-        new DiagonalPair(1, -1, 1, 1)
-    );
-
-    return diagonalPairs.stream()
-        .anyMatch(pair -> checkDiagonal(row, col, pair.row1(), pair.col1()) &&
-            checkDiagonal(row, col, pair.row2(), pair.col2()));
+    return (checkDiagonal(row, col, -1, -1) && checkDiagonal(row, col, -1, 1)) ||
+        (checkDiagonal(row, col, 1, -1) && checkDiagonal(row, col, 1, 1));
   }
 
   private boolean checkDiagonal(int row, int col, int rowDir, int colDir) {
