@@ -5,16 +5,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.function.BiPredicate;
 
 public class Day4 {
-  private char[][] matrix;
-  private int totalFound = 0;
+  private final char[][] matrix;
 
   public Day4() {
-    loadMatrix();
+    this.matrix = loadMatrix();
   }
 
-  private void loadMatrix() {
+  private char[][] loadMatrix() {
     try {
       Path path = Paths.get("src/main/resources/day4");
       List<String> lines = Files.readAllLines(path);
@@ -23,82 +23,75 @@ public class Day4 {
         throw new IOException("Input file is empty");
       }
 
-      matrix = new char[lines.size()][lines.getFirst().length()];
+      char[][] matrix = new char[lines.size()][lines.getFirst().length()];
       for (int i = 0; i < lines.size(); i++) {
         matrix[i] = lines.get(i).toCharArray();
       }
+      return matrix;
 
     } catch (IOException e) {
       System.err.println("Error reading input file: " + e.getMessage());
+      return new char[0][0];
     }
   }
 
   public int findXMAS() {
-    // Search in all 8 directions
-    int[] rowDir = {-1, -1, -1, 0, 0, 1, 1, 1};
-    int[] colDir = {-1, 0, 1, -1, 1, -1, 0, 1};
-    String target = "XMAS";
-
-    for (int row = 0; row < matrix.length; row++) {
-      for (int col = 0; col < matrix[0].length; col++) {
-        if (matrix[row][col] == 'X') {
-          // Check all 8 directions from this X
-          for (int dir = 0; dir < 8; dir++) {
-            if (searchDirection(row, col, rowDir[dir], colDir[dir], target)) {
-              totalFound++;
-            }
-          }
-        }
-      }
-    }
-
-    return totalFound;
+    return findPattern((row, col) -> searchXMAS(row, col));
   }
 
   public int findMASCross() {
-    int count = 0;
+    return findPattern((row, col) -> searchMASCross(row, col));
+  }
 
-    // For each potential center A position
+  private int findPattern(BiPredicate<Integer, Integer> searchFunction) {
+    int count = 0;
     for (int row = 1; row < matrix.length - 1; row++) {
       for (int col = 1; col < matrix[0].length - 1; col++) {
-        if (matrix[row][col] == 'A') {
-          // Check for MAS and SAM in diagonal patterns that form an X
-          if ((checkDiagonal(row, col, -1, -1) && checkDiagonal(row, col, -1, 1)) || // upper MAS or SAM patterns
-              (checkDiagonal(row, col, 1, -1) && checkDiagonal(row, col, 1, 1))) {   // lower MAS or SAM patterns
-            count++;
-          }
+        if (searchFunction.test(row, col)) {
+          count++;
         }
       }
     }
     return count;
   }
 
-  private boolean checkDiagonal(int row, int col, int rowDir, int colDir) {
-    // Check for MAS
-    boolean isMAS = (matrix[row - rowDir][col - colDir] == 'M' && matrix[row + rowDir][col + colDir] == 'S');
-    // Check for SAM (backwards MAS)
-    boolean isSAM = (matrix[row - rowDir][col - colDir] == 'S' && matrix[row + rowDir][col + colDir] == 'M');
+  private boolean searchXMAS(int row, int col) {
+    if (matrix[row][col] != 'X') return false;
 
-    return isMAS || isSAM;
+    int[] rowDir = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int[] colDir = {-1, 0, 1, -1, 1, -1, 0, 1};
+    String target = "XMAS";
+
+    for (int dir = 0; dir < 8; dir++) {
+      if (searchDirection(row, col, rowDir[dir], colDir[dir], target)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean searchMASCross(int row, int col) {
+    if (matrix[row][col] != 'A') return false;
+
+    return (checkDiagonal(row, col, -1, -1) && checkDiagonal(row, col, -1, 1)) ||
+        (checkDiagonal(row, col, 1, -1) && checkDiagonal(row, col, 1, 1));
+  }
+
+  private boolean checkDiagonal(int row, int col, int rowDir, int colDir) {
+    return (matrix[row - rowDir][col - colDir] == 'M' && matrix[row + rowDir][col + colDir] == 'S') ||
+        (matrix[row - rowDir][col - colDir] == 'S' && matrix[row + rowDir][col + colDir] == 'M');
   }
 
   private boolean searchDirection(int row, int col, int rowDir, int colDir, String target) {
-    if (row < 0 || row >= matrix.length || col < 0 || col >= matrix[0].length) {
-      return false;
-    }
-
-    // Check if we can fit the word in this direction
     if (!isInBounds(row, col, rowDir, colDir, target.length())) {
       return false;
     }
 
-    // Check each character
     for (int i = 0; i < target.length(); i++) {
       if (matrix[row + i * rowDir][col + i * colDir] != target.charAt(i)) {
         return false;
       }
     }
-
     return true;
   }
 
