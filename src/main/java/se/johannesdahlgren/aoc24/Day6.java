@@ -97,10 +97,85 @@ public class Day6 {
     return map[pos.y][pos.x] == '#';
   }
 
+  public int part2() throws IOException {
+    List<String> lines = Files.readAllLines(Path.of("src/main/resources/day6"));
+    char[][] originalMap = createMap(lines);
+    Position startPos = findStartPosition(originalMap);
+    int loopCount = 0;
+
+    for (int y = 0; y < originalMap.length; y++) {
+      for (int x = 0; x < originalMap[y].length; x++) {
+        // Skip positions that are already obstacles or the start position
+        if (originalMap[y][x] == '#' || (x == startPos.x && y == startPos.y)) {
+          continue;
+        }
+
+        char[][] mapCopy = copyMap(originalMap);
+        mapCopy[y][x] = '#';  // Place new obstacle
+
+        if (createsLoop(mapCopy, startPos)) {
+          loopCount++;
+        }
+      }
+    }
+
+    return loopCount;
+  }
+
+  private boolean createsLoop(char[][] map, Position startPos) {
+    Set<State> visitedStates = new HashSet<>();
+    Direction currentDirection = Direction.NORTH;
+    Position currentPos = startPos;
+
+    while (true) {
+      State currentState = new State(currentPos, currentDirection);
+
+      // If we've seen this state before, we're in a loop
+      if (!visitedStates.add(currentState)) {
+        return true;
+      }
+
+      Position nextPos = new Position(
+          currentPos.x + currentDirection.dx,
+          currentPos.y + currentDirection.dy
+      );
+
+      // If we exit the map, it's not a loop
+      if (!isInsideMap(nextPos, map)) {
+        return false;
+      }
+
+      if (isObstacle(nextPos, map)) {
+        currentDirection = currentDirection.turnRight();
+        continue;
+      }
+
+      currentPos = nextPos;
+
+      // If we've visited too many states, assume it's not a loop
+      if (visitedStates.size() > map.length * map[0].length * 4) {
+        return false;
+      }
+    }
+  }
+
+  private char[][] copyMap(char[][] original) {
+    char[][] copy = new char[original.length][];
+    for (int i = 0; i < original.length; i++) {
+      copy[i] = original[i].clone();
+    }
+    return copy;
+  }
+
+  private record State(Position position, Direction direction) {}
+
+
   public static void main(String[] args) throws IOException {
     Day6 day6 = new Day6();
     int distinctLocations = day6.countDistinctLocations();
+    int part2 = day6.part2();
     System.out.println("Number of distinct locations visited: " + distinctLocations);
+    System.out.println("Part 2: " + part2);
 
   }
 }
