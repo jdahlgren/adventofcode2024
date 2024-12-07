@@ -15,11 +15,11 @@ public class Day7 {
   public long sumValidTestNumbers() {
     long sum = 0;
     try {
-      List<String> lines = Files.readAllLines(Path.of("src/main/resources/day7.example"));
+      List<String> lines = Files.readAllLines(Path.of("src/main/resources/day7"));
 
       for (String line : lines) {
         String[] parts = line.split(":");
-        int targetValue = Integer.parseInt(parts[0].trim());
+        long targetValue = Long.parseLong(parts[0].trim());
         String[] numbers = parts[1].trim().split("\\s+");
 
         if (canReachTarget(numbers, targetValue, 0, Long.parseLong(numbers[0]))) {
@@ -32,7 +32,7 @@ public class Day7 {
     return sum;
   }
 
-  private boolean canReachTarget(String[] numbers, int target, int index, long currentResult) {
+  private boolean canReachTarget(String[] numbers, long target, int index, long currentResult) {
     if (index == numbers.length - 1) {
       return currentResult == target;
     }
