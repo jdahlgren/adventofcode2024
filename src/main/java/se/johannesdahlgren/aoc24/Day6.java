@@ -47,13 +47,17 @@ public class Day6 {
     Position currentPos = startPos;
     visitedPositions.add(currentPos);
 
-    while (isInsideMap(currentPos, map)) {
+    while (true) {
       Position nextPos = new Position(
           currentPos.x + currentDirection.dx,
           currentPos.y + currentDirection.dy
       );
 
-      if (!isInsideMap(nextPos, map) || isObstacle(nextPos, map)) {
+      if (!isInsideMap(nextPos, map)) {
+        break;
+      }
+
+      if (isObstacle(nextPos, map)) {
         currentDirection = currentDirection.turnRight();
         continue;
       }
