@@ -3,8 +3,11 @@ package se.johannesdahlgren.aoc24;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Day7 {
+  private static final Logger LOGGER = Logger.getLogger(Day7.class.getName());
 
   public static void main(String[] args) {
     Day7 day7 = new Day7();
@@ -27,7 +30,7 @@ public class Day7 {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.log(Level.SEVERE, "Error processing file", e);
     }
     return sum;
   }
