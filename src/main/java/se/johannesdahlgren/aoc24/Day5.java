@@ -41,14 +41,20 @@ public class Day5 {
     }
   }
 
-  public long countValidNumberLists() {
-    return numberLists.stream()
-        .filter(this::isValidNumberList)
-        .count();
-  }
-
   private boolean isValidNumberList(List<Integer> numbers) {
     return rules.stream().allMatch(rule -> isValidRule(numbers, rule));
+  }
+
+  public List<Integer> getMiddleNumbersOfValidLists() {
+    return numberLists.stream()
+        .filter(this::isValidNumberList)
+        .map(this::getMiddleNumber)
+        .toList();
+  }
+
+  private Integer getMiddleNumber(List<Integer> numbers) {
+    int middleIndex = numbers.size() / 2;
+    return numbers.get(middleIndex);
   }
 
   private boolean isValidRule(List<Integer> numbers, Rule rule) {
@@ -67,6 +73,7 @@ public class Day5 {
   public static void main(String[] args) throws IOException {
     Day5 validator = new Day5();
     validator.loadFromFile("src/main/resources/day5");
-    System.out.println("Number of valid lists: " + validator.countValidNumberLists());
+    List<Integer> middleNumbers = validator.getMiddleNumbersOfValidLists();
+    System.out.println("Middle numbers of valid lists: " + middleNumbers);
   }
 }
