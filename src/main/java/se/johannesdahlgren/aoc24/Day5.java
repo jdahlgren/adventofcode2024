@@ -41,8 +41,9 @@ public class Day5 {
     }
   }
 
-  public int sumMiddleNumbersOfFixedLists() {
+  public int sumMiddleNumbersOfFixedInvalidLists() {
     return numberLists.stream()
+        .filter(list -> !isValidNumberList(list))  // Only process invalid lists
         .map(this::fixNumberList)
         .map(this::getMiddleNumber)
         .mapToInt(Integer::intValue)
@@ -110,7 +111,7 @@ public class Day5 {
     System.out.println("Sum of middle numbers from valid lists: " + originalSum);
 
     // Part 2: Sum after fixing invalid lists
-    int fixedSum = validator.sumMiddleNumbersOfFixedLists();
+    int fixedSum = validator.sumMiddleNumbersOfFixedInvalidLists();
     System.out.println("Sum of middle numbers after fixing lists: " + fixedSum);
   }
 }
