@@ -11,11 +11,13 @@ public class Day7 {
 
   public static void main(String[] args) {
     Day7 day7 = new Day7();
-    long sum = day7.sumValidTestNumbers();
-    System.out.println("Sum of valid test numbers: " + sum);
+    long sumTwoOperators = day7.sumValidTestNumbers(false);
+    long sumThreeOperators = day7.sumValidTestNumbers(true);
+    System.out.println("Sum of valid test numbers (+ and *): " + sumTwoOperators);
+    System.out.println("Sum of valid test numbers (+, * and ||): " + sumThreeOperators);
   }
 
-  public long sumValidTestNumbers() {
+  public long sumValidTestNumbers(boolean includeConcatenation) {
     long sum = 0;
     try {
       List<String> lines = Files.readAllLines(Path.of("src/main/resources/day7"));
@@ -25,8 +27,14 @@ public class Day7 {
         long targetValue = Long.parseLong(parts[0].trim());
         String[] numbers = parts[1].trim().split("\\s+");
 
-        if (canReachTarget(numbers, targetValue, 0, Long.parseLong(numbers[0]))) {
-          sum += targetValue;
+        if (includeConcatenation) {
+          if (canReachTargetThreeOps(numbers, targetValue, 0, Long.parseLong(numbers[0]), String.valueOf(numbers[0]))) {
+            sum += targetValue;
+          }
+        } else {
+          if (canReachTargetTwoOps(numbers, targetValue, 0, Long.parseLong(numbers[0]))) {
+            sum += targetValue;
+          }
         }
       }
     } catch (Exception e) {
@@ -35,7 +43,30 @@ public class Day7 {
     return sum;
   }
 
-  private boolean canReachTarget(String[] numbers, long target, int index, long currentResult) {
+  private boolean canReachTargetThreeOps(String[] numbers, long target, int index, long currentResult, String currentStringNum) {
+    if (index == numbers.length - 1) {
+      return currentResult == target;
+    }
+
+    long nextNum = Long.parseLong(numbers[index + 1]);
+    String nextStringNum = numbers[index + 1];
+
+    // Try addition
+    if (canReachTargetThreeOps(numbers, target, index + 1, currentResult + nextNum, String.valueOf(currentResult + nextNum))) {
+      return true;
+    }
+
+    // Try multiplication
+    if (canReachTargetThreeOps(numbers, target, index + 1, currentResult * nextNum, String.valueOf(currentResult * nextNum))) {
+      return true;
+    }
+
+    // Try concatenation
+    long concatenatedNum = Long.parseLong(currentStringNum + nextStringNum);
+    return canReachTargetThreeOps(numbers, target, index + 1, concatenatedNum, String.valueOf(concatenatedNum));
+  }
+
+  private boolean canReachTargetTwoOps(String[] numbers, long target, int index, long currentResult) {
     if (index == numbers.length - 1) {
       return currentResult == target;
     }
@@ -43,11 +74,11 @@ public class Day7 {
     long nextNum = Long.parseLong(numbers[index + 1]);
 
     // Try addition
-    if (canReachTarget(numbers, target, index + 1, currentResult + nextNum)) {
+    if (canReachTargetTwoOps(numbers, target, index + 1, currentResult + nextNum)) {
       return true;
     }
 
     // Try multiplication
-    return canReachTarget(numbers, target, index + 1, currentResult * nextNum);
+    return canReachTargetTwoOps(numbers, target, index + 1, currentResult * nextNum);
   }
 }
