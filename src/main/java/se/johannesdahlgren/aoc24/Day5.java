@@ -41,6 +41,36 @@ public class Day5 {
     }
   }
 
+  public int sumMiddleNumbersOfFixedLists() {
+    return numberLists.stream()
+        .map(this::fixNumberList)
+        .map(this::getMiddleNumber)
+        .mapToInt(Integer::intValue)
+        .sum();
+  }
+
+  private List<Integer> fixNumberList(List<Integer> numbers) {
+    List<Integer> mutableNumbers = new ArrayList<>(numbers);
+    boolean needsFixing = true;
+
+    while (needsFixing) {
+      needsFixing = false;
+      for (Rule rule : rules) {
+        int beforeIndex = mutableNumbers.indexOf(rule.before());
+        int afterIndex = mutableNumbers.indexOf(rule.after());
+
+        if (beforeIndex != -1 && afterIndex != -1 && beforeIndex > afterIndex) {
+          // Swap the numbers to fix the order
+          int temp = mutableNumbers.get(beforeIndex);
+          mutableNumbers.set(beforeIndex, mutableNumbers.get(afterIndex));
+          mutableNumbers.set(afterIndex, temp);
+          needsFixing = true;
+        }
+      }
+    }
+    return mutableNumbers;
+  }
+
   public int sumMiddleNumbersOfValidLists() {
     return numberLists.stream()
         .filter(this::isValidNumberList)
@@ -74,7 +104,13 @@ public class Day5 {
   public static void main(String[] args) throws IOException {
     Day5 validator = new Day5();
     validator.loadFromFile("src/main/resources/day5");
-    int sum = validator.sumMiddleNumbersOfValidLists();
-    System.out.println("Sum of middle numbers from valid lists: " + sum);
+
+    // Part 1: Original sum of valid lists
+    int originalSum = validator.sumMiddleNumbersOfValidLists();
+    System.out.println("Sum of middle numbers from valid lists: " + originalSum);
+
+    // Part 2: Sum after fixing invalid lists
+    int fixedSum = validator.sumMiddleNumbersOfFixedLists();
+    System.out.println("Sum of middle numbers after fixing lists: " + fixedSum);
   }
 }
