@@ -38,7 +38,54 @@ public class Day8 {
       findAntinodesInLine(col, false);
     }
 
+    // Check diagonal lines
+    findDiagonalAntinodes();
+
     return antinodes.size();
+  }
+
+  private void findDiagonalAntinodes() {
+    // Check all possible starting points for diagonals
+    for (int row = 0; row < rows; row++) {
+      for (int col = 0; col < cols; col++) {
+        // Check diagonal going down-right
+        findAntinodesInDiagonal(row, col, 1, 1);
+        // Check diagonal going up-right
+        findAntinodesInDiagonal(row, col, -1, 1);
+      }
+    }
+  }
+
+  private void findAntinodesInDiagonal(int startRow, int startCol, int rowDir, int colDir) {
+    Map<Character, List<Point>> nodePositions = new HashMap<>();
+    int row = startRow;
+    int col = startCol;
+
+    // Collect positions of nodes along the diagonal
+    while (row >= 0 && row < rows && col >= 0 && col < cols) {
+      if (isNode(map[row][col])) {
+        nodePositions.computeIfAbsent(map[row][col], k -> new ArrayList<>())
+            .add(new Point(col, row));
+      }
+      row += rowDir;
+      col += colDir;
+    }
+
+    // Check each set of matching nodes
+    for (List<Point> positions : nodePositions.values()) {
+      for (int i = 0; i < positions.size(); i++) {
+        for (int j = i + 1; j < positions.size(); j++) {
+          Point p1 = positions.get(i);
+          Point p2 = positions.get(j);
+          int dx = p2.x - p1.x;
+          int dy = p2.y - p1.y;
+
+          // Check antinode positions in both directions
+          checkAndAddAntinode(p1.x - dx, p1.y - dy);
+          checkAndAddAntinode(p2.x + dx, p2.y + dy);
+        }
+      }
+    }
   }
 
   private void findAntinodesInLine(int index, boolean isHorizontal) {
@@ -67,9 +114,13 @@ public class Day8 {
           int pos2 = positions.get(j);
           int distance = pos2 - pos1;
 
-          // Check antinode positions in both directions
-          checkAndAddAntinode(pos1 - distance, index, isHorizontal);
-          checkAndAddAntinode(pos2 + distance, index, isHorizontal);
+          if (isHorizontal) {
+            checkAndAddAntinode(pos1 - distance, index);
+            checkAndAddAntinode(pos2 + distance, index);
+          } else {
+            checkAndAddAntinode(index, pos1 - distance);
+            checkAndAddAntinode(index, pos2 + distance);
+          }
         }
       }
     }
@@ -79,15 +130,9 @@ public class Day8 {
     return Character.isLetterOrDigit(c);
   }
 
-  private void checkAndAddAntinode(int position, int index, boolean isHorizontal) {
-    if (isHorizontal) {
-      if (position >= 0 && position < cols) {
-        antinodes.add(new Point(position, index));
-      }
-    } else {
-      if (position >= 0 && position < rows) {
-        antinodes.add(new Point(index, position));
-      }
+  private void checkAndAddAntinode(int x, int y) {
+    if (x >= 0 && x < cols && y >= 0 && y < rows) {
+      antinodes.add(new Point(x, y));
     }
   }
 
