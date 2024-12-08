@@ -38,16 +38,13 @@ public class Day8 {
           Point p1 = sameNodes.get(i);
           Point p2 = sameNodes.get(j);
 
-          // Check if nodes are in line (horizontal, vertical, or diagonal)
-          if (isInLine(p1, p2)) {
-            // Calculate vector between points
-            int dx = p2.x - p1.x;
-            int dy = p2.y - p1.y;
+          // Calculate direction vector between points
+          int dx = p2.x - p1.x;
+          int dy = p2.y - p1.y;
 
-            // Calculate and check potential antinodes
-            checkAndAddAntinode(p1.x - dx, p1.y - dy);  // Before first node
-            checkAndAddAntinode(p2.x + dx, p2.y + dy);  // After second node
-          }
+          // Check potential antinodes in both directions
+          checkAndAddAntinode(p1.x - dx, p1.y - dy);  // Before first node
+          checkAndAddAntinode(p2.x + dx, p2.y + dy);  // After second node
         }
       }
     }
@@ -66,16 +63,6 @@ public class Day8 {
       }
     }
     return nodes;
-  }
-
-  private boolean isInLine(Point p1, Point p2) {
-    int dx = Math.abs(p2.x - p1.x);
-    int dy = Math.abs(p2.y - p1.y);
-
-    // Check if points are in a horizontal, vertical, or diagonal line
-    return dx == 0 || // vertical
-        dy == 0 || // horizontal
-        dx == dy;  // diagonal
   }
 
   private boolean isNode(char c) {
