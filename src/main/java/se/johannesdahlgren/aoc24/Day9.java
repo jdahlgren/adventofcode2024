@@ -9,24 +9,40 @@ import java.util.List;
 public class Day9 {
 
   public static void main(String[] args) throws IOException {
-    String input = Files.readString(Path.of("src/main/resources/day9.example"));
-    List<Integer> numbers = Arrays.stream(input.trim().split(""))
+    Day9 day9 = new Day9();
+    String input = day9.readInputFile();
+    List<Integer> numbers = day9.parseInput(input);
+    String result = day9.processSequence(numbers);
+    System.out.println("Result: " + result);
+  }
+
+  private String readInputFile() throws IOException {
+    return Files.readString(Path.of("src/main/resources/day9.example"));
+  }
+
+  private List<Integer> parseInput(String input) {
+    return Arrays.stream(input.trim().split(""))
         .map(Integer::parseInt)
         .toList();
+  }
 
+  private String processSequence(List<Integer> numbers) {
     StringBuilder result = new StringBuilder();
     for (int i = 0; i < numbers.size(); i += 2) {
-      int blockLength = numbers.get(i);
-      // Add the block using i/2 as the index
-      result.append(String.valueOf(i/2).repeat(blockLength));
+      addBlock(result, i/2, numbers.get(i));
 
-      // Add blank spaces if there are more numbers
       if (i + 1 < numbers.size()) {
-        int blankSpace = numbers.get(i + 1);
-        result.append(".".repeat(blankSpace));
+        addBlankSpace(result, numbers.get(i + 1));
       }
     }
+    return result.toString();
+  }
 
-    System.out.println("Result: " + result);
+  private void addBlock(StringBuilder result, int index, int length) {
+    result.append(String.valueOf(index).repeat(length));
+  }
+
+  private void addBlankSpace(StringBuilder result, int length) {
+    result.append(".".repeat(length));
   }
 }
