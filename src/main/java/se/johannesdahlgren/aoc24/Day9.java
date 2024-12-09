@@ -15,7 +15,7 @@ public class Day9 {
     String input = day9.readInputFile();
     List<Integer> numbers = day9.parseInput(input);
     List<Integer> initialSequence = day9.processSequence(numbers);
-    List<Integer> finalSequence = day9.moveLastNumberToFirstSpace(initialSequence);
+    List<Integer> finalSequence = day9.moveNumbersToSpaces(initialSequence);
 
     System.out.println("Initial sequence: " + formatSequence(initialSequence));
     System.out.println("Final sequence: " + formatSequence(finalSequence));
@@ -55,30 +55,39 @@ public class Day9 {
     }
   }
 
-  private List<Integer> moveLastNumberToFirstSpace(List<Integer> sequence) {
-    // Find the last number in the sequence
-    int lastIndex = sequence.size() - 1;
-    while (lastIndex >= 0 && sequence.get(lastIndex) == BLANK_SPACE) {
-      lastIndex--;
-    }
-
-    if (lastIndex < 0) {
-      return sequence; // No numbers found
-    }
-
-    // Get the last number
-    int lastNumber = sequence.get(lastIndex);
-
-    // Find first blank space
-    int firstSpaceIndex = sequence.indexOf(BLANK_SPACE);
-    if (firstSpaceIndex == -1) {
-      return sequence; // No spaces found
-    }
-
-    // Create new sequence with the last number moved
+  private List<Integer> moveNumbersToSpaces(List<Integer> sequence) {
     List<Integer> result = new ArrayList<>(sequence);
-    result.set(firstSpaceIndex, lastNumber);
-    result.set(lastIndex, BLANK_SPACE);
+
+    // Find all spaces
+    List<Integer> spaceIndices = new ArrayList<>();
+    for (int i = 0; i < result.size(); i++) {
+      if (result.get(i) == BLANK_SPACE) {
+        spaceIndices.add(i);
+      }
+    }
+
+    // If no spaces, return original sequence
+    if (spaceIndices.isEmpty()) {
+      return result;
+    }
+
+    // For each space, starting from first space
+    for (int spaceIndex : spaceIndices) {
+      // Find the last non-space number
+      int lastNumberIndex = result.size() - 1;
+      while (lastNumberIndex >= 0 && result.get(lastNumberIndex) == BLANK_SPACE) {
+        lastNumberIndex--;
+      }
+
+      // If we've run out of numbers to move, break
+      if (lastNumberIndex < 0 || lastNumberIndex <= spaceIndex) {
+        break;
+      }
+
+      // Move the number to the space
+      result.set(spaceIndex, result.get(lastNumberIndex));
+      result.set(lastNumberIndex, BLANK_SPACE);
+    }
 
     return result;
   }
