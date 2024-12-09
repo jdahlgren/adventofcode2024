@@ -12,8 +12,11 @@ public class Day9 {
     Day9 day9 = new Day9();
     String input = day9.readInputFile();
     List<Integer> numbers = day9.parseInput(input);
-    String result = day9.processSequence(numbers);
-    System.out.println("Result: " + result);
+    String initialSequence = day9.processSequence(numbers);
+    String finalSequence = day9.moveLastDigitToFirstSpace(initialSequence);
+
+    System.out.println("Initial sequence: " + initialSequence);
+    System.out.println("Final sequence: " + finalSequence);
   }
 
   private String readInputFile() throws IOException {
@@ -44,5 +47,38 @@ public class Day9 {
 
   private void addBlankSpace(StringBuilder result, int length) {
     result.append(".".repeat(length));
+  }
+
+  private String moveLastDigitToFirstSpace(String sequence) {
+    // Find the last number in the sequence
+    int lastIndex = sequence.length() - 1;
+    while (lastIndex >= 0 && sequence.charAt(lastIndex) == '.') {
+      lastIndex--;
+    }
+
+    if (lastIndex < 0) {
+      return sequence; // No numbers found
+    }
+
+    // Extract the last digit
+    int endOfNumber = lastIndex + 1;
+    int startOfNumber = lastIndex;
+    while (startOfNumber > 0 && Character.isDigit(sequence.charAt(startOfNumber - 1))) {
+      startOfNumber--;
+    }
+    String lastNumber = sequence.substring(startOfNumber, endOfNumber);
+
+    // Find first blank space
+    int firstSpaceIndex = sequence.indexOf('.');
+    if (firstSpaceIndex == -1) {
+      return sequence; // No spaces found
+    }
+
+    // Create new sequence with the last digit moved
+    StringBuilder result = new StringBuilder(sequence);
+    result.replace(firstSpaceIndex, firstSpaceIndex + 1, lastNumber);
+    result.replace(startOfNumber, endOfNumber, ".");
+
+    return result.toString();
   }
 }
