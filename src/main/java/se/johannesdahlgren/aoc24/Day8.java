@@ -66,6 +66,7 @@ public class Day8 {
             // Check positions before p1
             int x = p1.x;
             int y = p1.y;
+            checkAndAddAntinode(x, y, allPossibleAntinodes); // Include the first node position
             while (true) {
               x -= unitDx;
               y -= unitDy;
@@ -77,6 +78,7 @@ public class Day8 {
             // Check positions after p2
             x = p2.x;
             y = p2.y;
+            checkAndAddAntinode(x, y, allPossibleAntinodes); // Include the second node position
             while (true) {
               x += unitDx;
               y += unitDy;
@@ -86,12 +88,12 @@ public class Day8 {
             }
 
             // Check positions between p1 and p2
-            x = p1.x;
-            y = p1.y;
+            x = p1.x + unitDx;
+            y = p1.y + unitDy;
             while (x != p2.x || y != p2.y) {
+              checkAndAddAntinode(x, y, allPossibleAntinodes);
               x += unitDx;
               y += unitDy;
-              checkAndAddAntinode(x, y, allPossibleAntinodes);
             }
           }
         }
