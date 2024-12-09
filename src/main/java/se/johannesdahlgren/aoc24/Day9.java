@@ -3,20 +3,22 @@ package se.johannesdahlgren.aoc24;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Day9 {
+  private static final int BLANK_SPACE = -1; // Using -1 to represent blank space
 
   public static void main(String[] args) throws IOException {
     Day9 day9 = new Day9();
     String input = day9.readInputFile();
     List<Integer> numbers = day9.parseInput(input);
-    String initialSequence = day9.processSequence(numbers);
-    String finalSequence = day9.moveLastDigitToFirstSpace(initialSequence);
+    List<Integer> initialSequence = day9.processSequence(numbers);
+    List<Integer> finalSequence = day9.moveLastNumberToFirstSpace(initialSequence);
 
-    System.out.println("Initial sequence: " + initialSequence);
-    System.out.println("Final sequence: " + finalSequence);
+    System.out.println("Initial sequence: " + formatSequence(initialSequence));
+    System.out.println("Final sequence: " + formatSequence(finalSequence));
   }
 
   private String readInputFile() throws IOException {
@@ -29,8 +31,8 @@ public class Day9 {
         .toList();
   }
 
-  private String processSequence(List<Integer> numbers) {
-    StringBuilder result = new StringBuilder();
+  private List<Integer> processSequence(List<Integer> numbers) {
+    List<Integer> result = new ArrayList<>();
     for (int i = 0; i < numbers.size(); i += 2) {
       addBlock(result, i/2, numbers.get(i));
 
@@ -38,21 +40,25 @@ public class Day9 {
         addBlankSpace(result, numbers.get(i + 1));
       }
     }
-    return result.toString();
+    return result;
   }
 
-  private void addBlock(StringBuilder result, int index, int length) {
-    result.append(String.valueOf(index).repeat(length));
+  private void addBlock(List<Integer> result, int index, int length) {
+    for (int i = 0; i < length; i++) {
+      result.add(index);
+    }
   }
 
-  private void addBlankSpace(StringBuilder result, int length) {
-    result.append(".".repeat(length));
+  private void addBlankSpace(List<Integer> result, int length) {
+    for (int i = 0; i < length; i++) {
+      result.add(BLANK_SPACE);
+    }
   }
 
-  private String moveLastDigitToFirstSpace(String sequence) {
+  private List<Integer> moveLastNumberToFirstSpace(List<Integer> sequence) {
     // Find the last number in the sequence
-    int lastIndex = sequence.length() - 1;
-    while (lastIndex >= 0 && sequence.charAt(lastIndex) == '.') {
+    int lastIndex = sequence.size() - 1;
+    while (lastIndex >= 0 && sequence.get(lastIndex) == BLANK_SPACE) {
       lastIndex--;
     }
 
@@ -60,25 +66,26 @@ public class Day9 {
       return sequence; // No numbers found
     }
 
-    // Extract the last digit
-    int endOfNumber = lastIndex + 1;
-    int startOfNumber = lastIndex;
-    while (startOfNumber > 0 && Character.isDigit(sequence.charAt(startOfNumber - 1))) {
-      startOfNumber--;
-    }
-    String lastNumber = sequence.substring(startOfNumber, endOfNumber);
+    // Get the last number
+    int lastNumber = sequence.get(lastIndex);
 
     // Find first blank space
-    int firstSpaceIndex = sequence.indexOf('.');
+    int firstSpaceIndex = sequence.indexOf(BLANK_SPACE);
     if (firstSpaceIndex == -1) {
       return sequence; // No spaces found
     }
 
-    // Create new sequence with the last digit moved
-    StringBuilder result = new StringBuilder(sequence);
-    result.replace(firstSpaceIndex, firstSpaceIndex + 1, lastNumber);
-    result.replace(startOfNumber, endOfNumber, ".");
+    // Create new sequence with the last number moved
+    List<Integer> result = new ArrayList<>(sequence);
+    result.set(firstSpaceIndex, lastNumber);
+    result.set(lastIndex, BLANK_SPACE);
 
-    return result.toString();
+    return result;
+  }
+
+  private static String formatSequence(List<Integer> sequence) {
+    return sequence.stream()
+        .map(n -> n == BLANK_SPACE ? "." : String.valueOf(n))
+        .reduce("", (a, b) -> a + b);
   }
 }
