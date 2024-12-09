@@ -16,13 +16,15 @@ public class Day9 {
     List<Integer> numbers = day9.parseInput(input);
     List<Integer> initialSequence = day9.processSequence(numbers);
     List<Integer> finalSequence = day9.moveNumbersToSpaces(initialSequence);
+    long sum = day9.calculateSum(finalSequence);
 
     System.out.println("Initial sequence: " + formatSequence(initialSequence));
     System.out.println("Final sequence: " + formatSequence(finalSequence));
+    System.out.println("Sum: " + sum);
   }
 
   private String readInputFile() throws IOException {
-    return Files.readString(Path.of("src/main/resources/day9.example"));
+    return Files.readString(Path.of("src/main/resources/day9"));
   }
 
   private List<Integer> parseInput(String input) {
@@ -58,7 +60,6 @@ public class Day9 {
   private List<Integer> moveNumbersToSpaces(List<Integer> sequence) {
     List<Integer> result = new ArrayList<>(sequence);
 
-    // Find all spaces
     List<Integer> spaceIndices = new ArrayList<>();
     for (int i = 0; i < result.size(); i++) {
       if (result.get(i) == BLANK_SPACE) {
@@ -66,30 +67,36 @@ public class Day9 {
       }
     }
 
-    // If no spaces, return original sequence
     if (spaceIndices.isEmpty()) {
       return result;
     }
 
-    // For each space, starting from first space
     for (int spaceIndex : spaceIndices) {
-      // Find the last non-space number
       int lastNumberIndex = result.size() - 1;
       while (lastNumberIndex >= 0 && result.get(lastNumberIndex) == BLANK_SPACE) {
         lastNumberIndex--;
       }
 
-      // If we've run out of numbers to move, break
       if (lastNumberIndex < 0 || lastNumberIndex <= spaceIndex) {
         break;
       }
 
-      // Move the number to the space
       result.set(spaceIndex, result.get(lastNumberIndex));
       result.set(lastNumberIndex, BLANK_SPACE);
     }
 
     return result;
+  }
+
+  private long calculateSum(List<Integer> sequence) {
+    long sum = 0;
+    for (int i = 0; i < sequence.size(); i++) {
+      int number = sequence.get(i);
+      if (number != BLANK_SPACE) {
+        sum += (long) i * number;
+      }
+    }
+    return sum;
   }
 
   private static String formatSequence(List<Integer> sequence) {
