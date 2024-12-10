@@ -18,7 +18,7 @@ public class Day10 {
   public Day10(String filename) throws IOException {
     List<String> lines = Files.readAllLines(Path.of(filename));
     rows = lines.size();
-    cols = lines.get(0).length();
+    cols = lines.getFirst().length();
     heightMap = new int[rows][cols];
 
     // Parse the height map and find start (0) and end (9) points
@@ -54,9 +54,6 @@ public class Day10 {
       reachableNinesCount.add(reachableNines.size());
       totalDistinctPaths += pathsFromThisStart;
 
-      System.out.println("Starting point (" + start.x + "," + start.y + ") can reach "
-          + reachableNines.size() + " endpoints and has "
-          + pathsFromThisStart + " distinct paths");
     }
 
     return new Result(reachableNinesCount, totalDistinctPaths);
@@ -89,7 +86,7 @@ public class Day10 {
         if (nextValue == currentValue + 1) {
           currentPath.add(next);
           findPaths(next, end, currentPath, allPaths);
-          currentPath.remove(currentPath.size() - 1);
+          currentPath.removeLast();
         }
       }
     }
@@ -99,7 +96,7 @@ public class Day10 {
     return x >= 0 && x < rows && y >= 0 && y < cols;
   }
 
-  static class Result {
+  public static class Result {
     final List<Integer> reachableNinesCount;
     final int totalDistinctPaths;
 
@@ -109,27 +106,8 @@ public class Day10 {
     }
   }
 
-  private static class Point {
-    final int x;
-    final int y;
+  private record Point(int x, int y) {
 
-    Point(int x, int y) {
-      this.x = x;
-      this.y = y;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-      Point point = (Point) o;
-      return x == point.x && y == point.y;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(x, y);
-    }
   }
 
   public static void main(String[] args) throws IOException {
@@ -140,8 +118,6 @@ public class Day10 {
         .mapToInt(Integer::intValue)
         .sum();
 
-    System.out.println("\nSummary of reachable 9s from each starting point: "
-        + result.reachableNinesCount);
     System.out.println("Total sum of all reachable 9s: " + totalReachableNines);
     System.out.println("Total number of distinct paths: " + result.totalDistinctPaths);
   }
