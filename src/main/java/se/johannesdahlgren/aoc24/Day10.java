@@ -110,5 +110,10 @@ public class Day10 {
     Day10 solver = new Day10("src/main/resources/day10");
     List<Integer> reachableNinesCount = solver.findReachableNines();
     System.out.println("\nSummary of reachable 9s from each starting point: " + reachableNinesCount);
+
+    int totalReachableNines = reachableNinesCount.stream()
+        .mapToInt(Integer::intValue)
+        .sum();
+    System.out.println("Total sum of all reachable 9s: " + totalReachableNines);
   }
 }
