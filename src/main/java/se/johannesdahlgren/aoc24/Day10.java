@@ -35,31 +35,45 @@ public class Day10 {
     }
   }
 
-  public List<Integer> findReachableNines() {
+  public Result solve() {
     List<Integer> reachableNinesCount = new ArrayList<>();
+    int totalDistinctPaths = 0;
 
     for (Point start : startPoints) {
-      Set<Point> reachableNines = findReachableNinesFromStart(start);
+      Set<Point> reachableNines = new HashSet<>();
+      int pathsFromThisStart = 0;
+
+      for (Point end : endPoints) {
+        int paths = countDistinctPaths(start, end);
+        if (paths > 0) {
+          reachableNines.add(end);
+          pathsFromThisStart += paths;
+        }
+      }
+
       reachableNinesCount.add(reachableNines.size());
+      totalDistinctPaths += pathsFromThisStart;
+
       System.out.println("Starting point (" + start.x + "," + start.y + ") can reach "
-          + reachableNines.size() + " endpoints");
+          + reachableNines.size() + " endpoints and has "
+          + pathsFromThisStart + " distinct paths");
     }
 
-    return reachableNinesCount;
+    return new Result(reachableNinesCount, totalDistinctPaths);
   }
 
-  private Set<Point> findReachableNinesFromStart(Point start) {
-    Set<Point> visited = new HashSet<>();
-    Set<Point> reachableNines = new HashSet<>();
-    dfs(start, visited, reachableNines);
-    return reachableNines;
+  private int countDistinctPaths(Point start, Point end) {
+    List<List<Point>> allPaths = new ArrayList<>();
+    List<Point> currentPath = new ArrayList<>();
+    currentPath.add(start);
+    findPaths(start, end, currentPath, allPaths);
+    return allPaths.size();
   }
 
-  private void dfs(Point current, Set<Point> visited, Set<Point> reachableNines) {
-    visited.add(current);
-
-    if (heightMap[current.x][current.y] == 9) {
-      reachableNines.add(current);
+  private void findPaths(Point current, Point end, List<Point> currentPath,
+      List<List<Point>> allPaths) {
+    if (current.equals(end)) {
+      allPaths.add(new ArrayList<>(currentPath));
       return;
     }
 
@@ -70,10 +84,12 @@ public class Day10 {
       int newY = current.y + DY[i];
       Point next = new Point(newX, newY);
 
-      if (isValid(newX, newY) && !visited.contains(next)) {
+      if (isValid(newX, newY) && !currentPath.contains(next)) {
         int nextValue = heightMap[newX][newY];
         if (nextValue == currentValue + 1) {
-          dfs(next, visited, reachableNines);
+          currentPath.add(next);
+          findPaths(next, end, currentPath, allPaths);
+          currentPath.remove(currentPath.size() - 1);
         }
       }
     }
@@ -81,6 +97,16 @@ public class Day10 {
 
   private boolean isValid(int x, int y) {
     return x >= 0 && x < rows && y >= 0 && y < cols;
+  }
+
+  static class Result {
+    final List<Integer> reachableNinesCount;
+    final int totalDistinctPaths;
+
+    Result(List<Integer> reachableNinesCount, int totalDistinctPaths) {
+      this.reachableNinesCount = reachableNinesCount;
+      this.totalDistinctPaths = totalDistinctPaths;
+    }
   }
 
   private static class Point {
@@ -108,12 +134,15 @@ public class Day10 {
 
   public static void main(String[] args) throws IOException {
     Day10 solver = new Day10("src/main/resources/day10");
-    List<Integer> reachableNinesCount = solver.findReachableNines();
-    System.out.println("\nSummary of reachable 9s from each starting point: " + reachableNinesCount);
+    Result result = solver.solve();
 
-    int totalReachableNines = reachableNinesCount.stream()
+    int totalReachableNines = result.reachableNinesCount.stream()
         .mapToInt(Integer::intValue)
         .sum();
+
+    System.out.println("\nSummary of reachable 9s from each starting point: "
+        + result.reachableNinesCount);
     System.out.println("Total sum of all reachable 9s: " + totalReachableNines);
+    System.out.println("Total number of distinct paths: " + result.totalDistinctPaths);
   }
 }
