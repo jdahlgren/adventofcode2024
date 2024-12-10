@@ -35,53 +35,48 @@ public class Day10 {
     }
   }
 
-  public List<Integer> findAllPaths() {
-    List<Integer> pathCounts = new ArrayList<>();
+  public List<Integer> findReachableNines() {
+    List<Integer> reachableNinesCount = new ArrayList<>();
 
     for (Point start : startPoints) {
-      for (Point end : endPoints) {
-        int paths = countPaths(start, end);
-        if (paths > 0) {
-          pathCounts.add(paths);
-        }
-      }
+      Set<Point> reachableNines = findReachableNinesFromStart(start);
+      reachableNinesCount.add(reachableNines.size());
+      System.out.println("Starting point (" + start.x + "," + start.y + ") can reach "
+          + reachableNines.size() + " endpoints");
     }
 
-    return pathCounts;
+    return reachableNinesCount;
   }
 
-  private int countPaths(Point start, Point end) {
-    Queue<Point> queue = new LinkedList<>();
-    Map<Point, Integer> pathCount = new HashMap<>();
+  private Set<Point> findReachableNinesFromStart(Point start) {
+    Set<Point> visited = new HashSet<>();
+    Set<Point> reachableNines = new HashSet<>();
+    dfs(start, visited, reachableNines);
+    return reachableNines;
+  }
 
-    queue.offer(start);
-    pathCount.put(start, 1);
+  private void dfs(Point current, Set<Point> visited, Set<Point> reachableNines) {
+    visited.add(current);
 
-    while (!queue.isEmpty()) {
-      Point current = queue.poll();
+    if (heightMap[current.x][current.y] == 9) {
+      reachableNines.add(current);
+      return;
+    }
 
-      if (current.equals(end)) {
-        continue;
-      }
+    int currentValue = heightMap[current.x][current.y];
 
-      int currentValue = heightMap[current.x][current.y];
-      int currentPaths = pathCount.get(current);
+    for (int i = 0; i < 4; i++) {
+      int newX = current.x + DX[i];
+      int newY = current.y + DY[i];
+      Point next = new Point(newX, newY);
 
-      for (int i = 0; i < 4; i++) {
-        int newX = current.x + DX[i];
-        int newY = current.y + DY[i];
-        Point next = new Point(newX, newY);
-
-        if (isValid(newX, newY) && heightMap[newX][newY] > currentValue) {
-          pathCount.merge(next, currentPaths, Integer::sum);
-          if (!queue.contains(next)) {
-            queue.offer(next);
-          }
+      if (isValid(newX, newY) && !visited.contains(next)) {
+        int nextValue = heightMap[newX][newY];
+        if (nextValue == currentValue + 1) {
+          dfs(next, visited, reachableNines);
         }
       }
     }
-
-    return pathCount.getOrDefault(end, 0);
   }
 
   private boolean isValid(int x, int y) {
@@ -113,9 +108,7 @@ public class Day10 {
 
   public static void main(String[] args) throws IOException {
     Day10 solver = new Day10("src/main/resources/day10");
-    List<Integer> pathCounts = solver.findAllPaths();
-    System.out.println("Number of paths from each 0 to each 9:");
-    pathCounts.forEach(System.out::println);
-    System.out.println("Total number of paths: " + pathCounts.stream().mapToInt(Integer::intValue).sum());
+    List<Integer> reachableNinesCount = solver.findReachableNines();
+    System.out.println("\nSummary of reachable 9s from each starting point: " + reachableNinesCount);
   }
 }
