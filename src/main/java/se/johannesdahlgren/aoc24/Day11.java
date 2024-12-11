@@ -1,5 +1,4 @@
 package se.johannesdahlgren.aoc24;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,9 +9,9 @@ public class Day11 {
     String input = Files.readString(Path.of("src/main/resources/day11"));
     List<Long> numbers = new ArrayList<>();
 
-    // Parse initial numbers
-    for (String line : input.split("\n")) {
-      numbers.add(Long.parseLong(line.trim()));
+    // Parse initial space-separated numbers
+    for (String num : input.trim().split("\\s+")) {
+      numbers.add(Long.parseLong(num));
     }
 
     // Process for 25 turns
@@ -45,4 +44,3 @@ public class Day11 {
     return String.valueOf(Math.abs(num)).length() % 2 == 0;
   }
 }
-
