@@ -1,4 +1,5 @@
 package se.johannesdahlgren.aoc24;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -6,6 +7,11 @@ import java.util.List;
 
 public class Day11 {
   public static void main(String[] args) throws Exception {
+    processInput(25);
+    processInput(75);
+  }
+
+  private static void processInput(int turns) throws Exception {
     String input = Files.readString(Path.of("src/main/resources/day11"));
     List<Long> numbers = new ArrayList<>();
 
@@ -14,8 +20,8 @@ public class Day11 {
       numbers.add(Long.parseLong(num));
     }
 
-    // Process for 25 turns
-    for (int turn = 0; turn < 25; turn++) {
+    // Process for specified number of turns
+    for (int turn = 0; turn < turns; turn++) {
       List<Long> newNumbers = new ArrayList<>();
 
       for (Long num : numbers) {
@@ -37,7 +43,7 @@ public class Day11 {
       numbers = newNumbers;
     }
 
-    System.out.println("Final number count: " + numbers.size());
+    System.out.println("Final number count after " + turns + " turns: " + numbers.size());
   }
 
   private static boolean hasEvenDigits(long num) {
