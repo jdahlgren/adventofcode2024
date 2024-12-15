@@ -7,9 +7,11 @@ import java.util.*;
 public class Day12 {
   private List<List<Character>> grid = new ArrayList<>();
   private Set<Point> visited = new HashSet<>();
-  private List<Set<Point>> plots = new ArrayList<>();
+  private List<Plot> plots = new ArrayList<>();
 
   record Point(int row, int col) {}
+
+  record Plot(Set<Point> points, char letter, int area, int perimeter) {}
 
   public void solve() {
     readInput();
@@ -36,13 +38,44 @@ public class Day12 {
         Point point = new Point(i, j);
         if (!visited.contains(point)) {
           Set<Point> currentPlot = new HashSet<>();
-          dfs(i, j, grid.get(i).get(j), currentPlot);
+          char letter = grid.get(i).get(j);
+          dfs(i, j, letter, currentPlot);
           if (!currentPlot.isEmpty()) {
-            plots.add(currentPlot);
+            int area = currentPlot.size();
+            int perimeter = calculatePerimeter(currentPlot);
+            plots.add(new Plot(currentPlot, letter, area, perimeter));
           }
         }
       }
     }
+  }
+
+  private int calculatePerimeter(Set<Point> plot) {
+    int perimeter = 0;
+    for (Point point : plot) {
+      // Check all four sides of the current point
+      Point[] neighbors = {
+          new Point(point.row() + 1, point.col()), // down
+          new Point(point.row() - 1, point.col()), // up
+          new Point(point.row(), point.col() + 1), // right
+          new Point(point.row(), point.col() - 1)  // left
+      };
+
+      for (Point neighbor : neighbors) {
+        // A side adds to perimeter if either:
+        // 1. It's outside the grid bounds
+        // 2. The neighbor point is not part of the same plot
+        if (isOutsideGrid(neighbor) || !plot.contains(neighbor)) {
+          perimeter++;
+        }
+      }
+    }
+    return perimeter;
+  }
+
+  private boolean isOutsideGrid(Point point) {
+    return point.row() < 0 || point.row() >= grid.size() ||
+        point.col() < 0 || point.col() >= grid.get(0).size();
   }
 
   private void dfs(int row, int col, char letter, Set<Point> currentPlot) {
@@ -64,23 +97,21 @@ public class Day12 {
 
   private void printPlots() {
     for (int i = 0; i < plots.size(); i++) {
-      Set<Point> plot = plots.get(i);
-      Point firstPoint = plot.iterator().next();
-      System.out.printf("Plot %d (%c):%n",
-          i + 1,
-          grid.get(firstPoint.row()).get(firstPoint.col())
-      );
+      Plot plot = plots.get(i);
+      System.out.printf("Plot %d (%c):%n", i + 1, plot.letter());
+      System.out.printf("Area: %d%n", plot.area());
+      System.out.printf("Perimeter: %d%n", plot.perimeter());
 
       // Find boundaries of the plot
-      int minRow = plot.stream().mapToInt(Point::row).min().getAsInt();
-      int maxRow = plot.stream().mapToInt(Point::row).max().getAsInt();
-      int minCol = plot.stream().mapToInt(Point::col).min().getAsInt();
-      int maxCol = plot.stream().mapToInt(Point::col).max().getAsInt();
+      int minRow = plot.points().stream().mapToInt(Point::row).min().getAsInt();
+      int maxRow = plot.points().stream().mapToInt(Point::row).max().getAsInt();
+      int minCol = plot.points().stream().mapToInt(Point::col).min().getAsInt();
+      int maxCol = plot.points().stream().mapToInt(Point::col).max().getAsInt();
 
       // Print the plot
       for (int r = minRow; r <= maxRow; r++) {
         for (int c = minCol; c <= maxCol; c++) {
-          if (plot.contains(new Point(r, c))) {
+          if (plot.points().contains(new Point(r, c))) {
             System.out.print(grid.get(r).get(c));
           } else {
             System.out.print('.');
