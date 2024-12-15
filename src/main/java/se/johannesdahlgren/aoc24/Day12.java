@@ -18,6 +18,15 @@ public class Day12 {
     findPlots();
     System.out.println("Number of plots: " + plots.size());
     printPlots();
+
+    long totalSum = calculateTotalSum();
+    System.out.println("\nFinal sum (sum of area * perimeter for all plots): " + totalSum);
+  }
+
+  private long calculateTotalSum() {
+    return plots.stream()
+        .mapToLong(plot -> (long) plot.area() * plot.perimeter())
+        .sum();
   }
 
   private void readInput() {
