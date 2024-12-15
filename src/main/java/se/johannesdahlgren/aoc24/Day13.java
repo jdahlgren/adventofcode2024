@@ -41,29 +41,28 @@ public class Day13 {
     }
   }
 
-  public static String solveMachine(String input) {
+  public static int solveMachine(String input) {
     String[] lines = input.trim().split("\n");
 
     // Parse button A movement
-    String[] aLine = lines[0].split("[,:]")[0].split("\\+");
+    String[] aLine = lines[0].substring("Button A: ".length()).split(", ");
     Button buttonA = new Button(
-        Integer.parseInt(aLine[0].substring(aLine[0].indexOf("+")+1)),
-        Integer.parseInt(aLine[1].trim())
+        Integer.parseInt(aLine[0].substring(2)),
+        Integer.parseInt(aLine[1].substring(2))
     );
 
     // Parse button B movement
-    String[] bLine = lines[1].split("[,:]")[0].split("\\+");
+    String[] bLine = lines[1].substring("Button B: ".length()).split(", ");
     Button buttonB = new Button(
-        Integer.parseInt(bLine[0].substring(bLine[0].indexOf("+")+1)),
-        Integer.parseInt(bLine[1].trim())
+        Integer.parseInt(bLine[0].substring(2)),
+        Integer.parseInt(bLine[1].substring(2))
     );
 
     // Parse prize location
-    String[] prizeLine = lines[2].split("[,=]");
-    int targetX = Integer.parseInt(prizeLine[1]);
-    int targetY = Integer.parseInt(prizeLine[2].trim());
+    String[] prizeLine = lines[2].substring("Prize: ".length()).split(", ");
+    int targetX = Integer.parseInt(prizeLine[0].substring(2));
+    int targetY = Integer.parseInt(prizeLine[1].substring(2));
 
-    // BFS to find shortest path
     Queue<Position> queue = new LinkedList<>();
     Set<Position> visited = new HashSet<>();
 
@@ -74,25 +73,22 @@ public class Day13 {
     while (!queue.isEmpty()) {
       Position current = queue.poll();
 
-      // Check if we reached the prize
       if (current.x == targetX && current.y == targetY) {
-        return current.path + " (Cost: " + current.tokens + " tokens)";
+        return current.tokens;
       }
 
-      // Try button A
       Position afterA = new Position(
           current.x + buttonA.dx,
           current.y + buttonA.dy,
           current.tokens + 3,
-          current.path + "A"
+          ""
       );
 
-      // Try button B
       Position afterB = new Position(
           current.x + buttonB.dx,
           current.y + buttonB.dy,
           current.tokens + 1,
-          current.path + "B"
+          ""
       );
 
       if (!visited.contains(afterA) && isReasonablePosition(afterA, targetX, targetY)) {
@@ -106,7 +102,7 @@ public class Day13 {
       }
     }
 
-    return "No solution found";
+    return -1; // Return -1 if no solution found
   }
 
   private static boolean isReasonablePosition(Position pos, int targetX, int targetY) {
@@ -119,10 +115,17 @@ public class Day13 {
     String input = Files.readString(Path.of("src/main/resources/day13"));
     String[] machines = input.split("\n\\s*\n");
 
+    int totalTokens = 0;
     for (int i = 0; i < machines.length; i++) {
-      String solution = solveMachine(machines[i]);
-      System.out.println("Machine " + (i + 1) + ": " + solution);
+      int tokens = solveMachine(machines[i].trim());
+      if (tokens != -1) {
+        System.out.println("Machine " + (i + 1) + ": " + tokens + " tokens");
+        totalTokens += tokens;
+      } else {
+        System.out.println("Machine " + (i + 1) + ": No solution found");
+      }
     }
+    System.out.println("Total tokens needed: " + totalTokens);
   }
 }
 
