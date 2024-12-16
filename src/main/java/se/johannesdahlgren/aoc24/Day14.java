@@ -4,7 +4,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Day14 {
   record Robot(Pair position, Pair velocity) {
@@ -32,9 +34,9 @@ public class Day14 {
   record Pair(int x, int y) {}
 
   public static void main(String[] args) throws Exception {
-    final int ROOM_WIDTH = 101;  // Width of the room
-    final int ROOM_HEIGHT = 103; // Height of the room
-    final int SECONDS = 100;     // How many seconds to simulate
+    final int ROOM_WIDTH = 101;
+    final int ROOM_HEIGHT = 103;
+    final int SECONDS = 100;
 
     List<Robot> robots = readRobots("src/main/resources/day14");
 
@@ -42,6 +44,21 @@ public class Day14 {
       robots = robots.stream()
           .map(r -> r.move(ROOM_WIDTH, ROOM_HEIGHT))
           .toList();
+
+      // Check for clusters every few seconds
+      if (second % 5 == 0) {
+        Map<Pair, Integer> positions = new HashMap<>();
+        for (Robot robot : robots) {
+          positions.merge(robot.position, 1, Integer::sum);
+        }
+
+        // If we have any position with multiple robots, might be interesting
+        boolean hasClusters = positions.values().stream().anyMatch(count -> count > 2);
+        if (hasClusters) {
+          System.out.println("\nPossible pattern at second " + second + ":");
+          printRoom(robots, ROOM_WIDTH, ROOM_HEIGHT);
+        }
+      }
     }
 
     // Count final quadrants
@@ -61,12 +78,42 @@ public class Day14 {
         .filter(r -> r.getQuadrant(ROOM_WIDTH, ROOM_HEIGHT).equals("bottom-right"))
         .count();
 
-    System.out.println("After " + SECONDS + " seconds:");
+    System.out.println("\nFinal counts after " + SECONDS + " seconds:");
     System.out.println("Top-left: " + topLeft);
     System.out.println("Top-right: " + topRight);
     System.out.println("Bottom-left: " + bottomLeft);
     System.out.println("Bottom-right: " + bottomRight);
     System.out.println("Product: " + (topLeft * topRight * bottomLeft * bottomRight));
+  }
+
+  private static void printRoom(List<Robot> robots, int width, int height) {
+    char[][] grid = new char[height][width];
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        grid[y][x] = '.';
+      }
+    }
+
+    // Count robots at each position
+    Map<Pair, Integer> counts = new HashMap<>();
+    for (Robot robot : robots) {
+      counts.merge(robot.position, 1, Integer::sum);
+    }
+
+    // Mark positions
+    for (var entry : counts.entrySet()) {
+      Pair pos = entry.getKey();
+      int count = entry.getValue();
+      grid[pos.y][pos.x] = count > 9 ? '*' : Character.forDigit(count, 10);
+    }
+
+    // Print the grid
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        System.out.print(grid[y][x]);
+      }
+      System.out.println();
+    }
   }
 
   private static List<Robot> readRobots(String filename) throws Exception {
