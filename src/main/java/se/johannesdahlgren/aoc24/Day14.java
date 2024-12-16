@@ -125,7 +125,7 @@ public class Day14 {
 
     // Check if the largest cluster contains at least 90% of all robots
     return largestCluster.map(cluster ->
-        (double) cluster.size() / robots.size() >= 0.9
+        (double) cluster.size() / robots.size() >= 0.2
     ).orElse(false);
   }
 
