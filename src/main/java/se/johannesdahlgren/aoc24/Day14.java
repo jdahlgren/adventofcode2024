@@ -13,6 +13,22 @@ public class Day14 {
       int newY = Math.floorMod(position.y + velocity.y, height);
       return new Robot(new Pair(newX, newY), velocity);
     }
+
+    String getQuadrant(int width, int height) {
+      int midX = width / 2;
+      int midY = height / 2;
+
+      // Skip robots on the middle lines
+      if (position.x == midX || position.y == midY) {
+        return "middle";
+      }
+
+      if (position.x < midX) {
+        return position.y < midY ? "top-left" : "bottom-left";
+      } else {
+        return position.y < midY ? "top-right" : "bottom-right";
+      }
+    }
   }
   record Pair(int x, int y) {}
 
@@ -23,7 +39,7 @@ public class Day14 {
 
     List<Robot> robots = readRobots("src/main/resources/day14");
     System.out.println("Initial state:");
-    robots.forEach(System.out::println);
+    printQuadrantCounts(robots, ROOM_WIDTH, ROOM_HEIGHT);
 
     for (int second = 1; second <= SECONDS; second++) {
       robots = robots.stream()
@@ -31,9 +47,37 @@ public class Day14 {
           .toList();
 
       System.out.println("\nAfter second " + second + ":");
-      System.out.println("Robots: " + robots.size());
-      robots.forEach(System.out::println);
+      printQuadrantCounts(robots, ROOM_WIDTH, ROOM_HEIGHT);
     }
+  }
+
+  private static void printQuadrantCounts(List<Robot> robots, int width, int height) {
+    long topLeft = robots.stream()
+        .filter(r -> r.getQuadrant(width, height).equals("top-left"))
+        .count();
+
+    long topRight = robots.stream()
+        .filter(r -> r.getQuadrant(width, height).equals("top-right"))
+        .count();
+
+    long bottomLeft = robots.stream()
+        .filter(r -> r.getQuadrant(width, height).equals("bottom-left"))
+        .count();
+
+    long bottomRight = robots.stream()
+        .filter(r -> r.getQuadrant(width, height).equals("bottom-right"))
+        .count();
+
+    long middle = robots.stream()
+        .filter(r -> r.getQuadrant(width, height).equals("middle"))
+        .count();
+
+    System.out.println("Top-left: " + topLeft);
+    System.out.println("Top-right: " + topRight);
+    System.out.println("Bottom-left: " + bottomLeft);
+    System.out.println("Bottom-right: " + bottomRight);
+    System.out.println("On middle lines: " + middle);
+    System.out.println("Total robots: " + robots.size());
   }
 
   private static List<Robot> readRobots(String filename) throws Exception {
