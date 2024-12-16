@@ -3,10 +3,7 @@ package se.johannesdahlgren.aoc24;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Day14 {
   record Robot(Pair position, Pair velocity) {
@@ -45,19 +42,11 @@ public class Day14 {
           .map(r -> r.move(ROOM_WIDTH, ROOM_HEIGHT))
           .toList();
 
-      // Check for clusters every few seconds
-      if (second % 5 == 0) {
-        Map<Pair, Integer> positions = new HashMap<>();
-        for (Robot robot : robots) {
-          positions.merge(robot.position, 1, Integer::sum);
-        }
-
-        // If we have any position with multiple robots, might be interesting
-        boolean hasClusters = positions.values().stream().anyMatch(count -> count > 2);
-        if (hasClusters) {
-          System.out.println("\nPossible pattern at second " + second + ":");
-          printRoom(robots, ROOM_WIDTH, ROOM_HEIGHT);
-        }
+      if (hasCluster(robots)) {
+        System.out.println("\nPossible pattern at second " + second + ":");
+        printRoom(robots, ROOM_WIDTH, ROOM_HEIGHT);
+        System.out.println("Press Enter to continue...");
+        System.in.read();
       }
     }
 
@@ -86,6 +75,26 @@ public class Day14 {
     System.out.println("Product: " + (topLeft * topRight * bottomLeft * bottomRight));
   }
 
+  private static boolean hasCluster(List<Robot> robots) {
+    for (Robot robot : robots) {
+      int neighborCount = 0;
+      for (Robot other : robots) {
+        if (robot == other) continue;
+
+        // Check if robots are adjacent (including diagonally)
+        int dx = Math.abs(robot.position.x - other.position.x);
+        int dy = Math.abs(robot.position.y - other.position.y);
+        if (dx <= 1 && dy <= 1) {
+          neighborCount++;
+          if (neighborCount >= 2) { // At least 3 robots in cluster (this one + 2 neighbors)
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   private static void printRoom(List<Robot> robots, int width, int height) {
     char[][] grid = new char[height][width];
     for (int y = 0; y < height; y++) {
@@ -94,17 +103,9 @@ public class Day14 {
       }
     }
 
-    // Count robots at each position
-    Map<Pair, Integer> counts = new HashMap<>();
+    // Mark robot positions
     for (Robot robot : robots) {
-      counts.merge(robot.position, 1, Integer::sum);
-    }
-
-    // Mark positions
-    for (var entry : counts.entrySet()) {
-      Pair pos = entry.getKey();
-      int count = entry.getValue();
-      grid[pos.y][pos.x] = count > 9 ? '*' : Character.forDigit(count, 10);
+      grid[robot.position.y][robot.position.x] = '#';
     }
 
     // Print the grid
@@ -142,4 +143,3 @@ public class Day14 {
     );
   }
 }
-
