@@ -8,22 +8,17 @@ import java.util.List;
 
 public class Day14 {
   record Robot(Pair position, Pair velocity) {
-    Robot move() {
-      return new Robot(
-          new Pair(position.x + velocity.x, position.y + velocity.y),
-          velocity
-      );
-    }
-
-    boolean isInBounds(int size) {
-      return position.x >= 0 && position.x < size
-          && position.y >= 0 && position.y < size;
+    Robot move(int width, int height) {
+      int newX = Math.floorMod(position.x + velocity.x, width);
+      int newY = Math.floorMod(position.y + velocity.y, height);
+      return new Robot(new Pair(newX, newY), velocity);
     }
   }
   record Pair(int x, int y) {}
 
   public static void main(String[] args) throws Exception {
-    final int ROOM_SIZE = 100;  // Size of the room (100x100)
+    final int ROOM_WIDTH = 11;  // Width of the room
+    final int ROOM_HEIGHT = 7;  // Height of the room
     final int SECONDS = 10;     // How many seconds to simulate
 
     List<Robot> robots = readRobots("src/main/resources/day14");
@@ -32,12 +27,11 @@ public class Day14 {
 
     for (int second = 1; second <= SECONDS; second++) {
       robots = robots.stream()
-          .map(Robot::move)
-          .filter(r -> r.isInBounds(ROOM_SIZE))
+          .map(r -> r.move(ROOM_WIDTH, ROOM_HEIGHT))
           .toList();
 
       System.out.println("\nAfter second " + second + ":");
-      System.out.println("Robots remaining: " + robots.size());
+      System.out.println("Robots: " + robots.size());
       robots.forEach(System.out::println);
     }
   }
