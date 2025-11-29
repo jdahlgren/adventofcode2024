@@ -1,3 +1,4 @@
+Archived, merged into https://github.com/jdahlgren/adventOfCode 
 # adventofcode2024
 This year, I'm learning LLMs, and will use them to solve the daily tasks.
 I won't copy/paste full problems into LLM, but trying to learn how to best write good prompts
